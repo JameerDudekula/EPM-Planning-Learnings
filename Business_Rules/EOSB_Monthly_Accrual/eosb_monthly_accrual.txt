@@ -1,0 +1,54 @@
+/*********************************************************************************************************************************************************/
+FIX ("Benefit - Total Accrual", "Benefit - Plan Year", @Relative("Total Cost Center", 0), @Relative("Total_Employees", 0), @Relative("Total_grades", 0), "OWP_EXPENSE AMOUNT", "Category_A", "Category_B", {Entity}, OEP_Working, "OEP_Plan", &Plan_year,"Jan":"DEC", "P0000") 
+    CLEARBLOCK ALL;
+ENDFIX 
+FIX ("Benefit - Total Accrual", "Benefit - Plan Year", @Relative("Total Cost Center", 0), @Relative("Total_Employees", 0), @Relative("Total_grades", 0), "Category_A", "Category_B", {Entity}, OEP_Working, "OEP_Plan", &Plan_year, "Jan":"DEC", "P0000") 
+    "OWP_EXPENSE AMOUNT" (
+        IF ("Hire Date"->"BEGBALANCE"->"NO PROPERTY" < "Jan2nd"->"C0000"->"E0000"->"G0000"->"N0000"->"OEP_No Entity"->"NO YEAR"->"BEGBALANCE"->"no property" and "Hire Date"->"BEGBALANCE"->"NO PROPERTY" <> #MISSING) 
+            "Service Tenure" = @CalcMgrDateDiff("Hire Date"->"BEGBALANCE"->"NO PROPERTY", "TP-EndDate", "YEAR");
+            IF (@ISMBR("CATEGORY_A") AND @ISMBR("P0") AND ("Service Tenure" >= 1 AND "Service Tenure" <= 5)) 
+                "Benefit - Total Accrual" = ("Base Salary"->"no property"->"begbalance" / 12) * 1.5 * "Service Tenure";
+                "Benefit - Plan Year" = ("Base Salary"->"no property"->"begbalance" / 12) * 1.5;
+            ELSEIF (@ISMBR("CATEGORY_A") AND @ISMBR("P0") AND ("Service Tenure" > 5 AND "Service Tenure" <= 10)) 
+                "Benefit - Total Accrual" = ("Base Salary"->"no property"->"begbalance" / 12) * 2 * "Service Tenure";
+                "Benefit - Plan Year" = ("Base Salary"->"no property"->"begbalance" / 12) * 2;
+            ELSEIF (@ISMBR("CATEGORY_A") AND @ISMBR("P0") AND ("Service Tenure" > 10)) 
+                "Benefit - Total Accrual" = ("Base Salary"->"no property"->"begbalance" / 12) * 3 * "Service Tenure";
+                "Benefit - Plan Year" = ("Base Salary"->"no property"->"begbalance" / 12) * 3;
+            ELSEIF (@ISMBR("CATEGORY_B") AND @ISMBR("P0") AND ("Service Tenure" >= 1 AND "Service Tenure" <= 5)) 
+                "Benefit - Total Accrual" = ("Base Salary"->"no property"->"begbalance" / 12) * 1 * "Service Tenure";
+                "Benefit - Plan Year" = ("Base Salary"->"no property"->"begbalance" / 12) * 1;
+            ELSEIF (@ISMBR("CATEGORY_B") AND @ISMBR("P0") AND ("Service Tenure" > 5 AND "Service Tenure" <= 10)) 
+                "Benefit - Total Accrual" = ("Base Salary"->"no property"->"begbalance" / 12) * 1.5 * "Service Tenure";
+                "Benefit - Plan Year" = ("Base Salary"->"no property"->"begbalance" / 12) * 1.5;
+            ELSEIF (@ISMBR("CATEGORY_B") AND @ISMBR("P0") AND ("Service Tenure" > 10)) 
+                "Benefit - Total Accrual" = ("Base Salary"->"no property"->"begbalance" / 12) * 2 * "Service Tenure";
+                "Benefit - Plan Year" = ("Base Salary"->"no property"->"begbalance" / 12) * 2;
+            ELSEIF (@ISMBR("CATEGORY_B") AND (@ISMBR("S2") OR @ISMBR("S4")) AND ("Service Tenure" >= 1 AND "Service Tenure" <= 5)) 
+                "Benefit - Total Accrual" = ("Base Salary"->"no property"->"begbalance" / 12) * 1 * "Service Tenure";
+                "Benefit - Plan Year" = ("Base Salary"->"no property"->"begbalance" / 12) * 1;
+            ELSEIF (@ISMBR("CATEGORY_B") AND (@ISMBR("S2") OR @ISMBR("S4")) AND ("Service Tenure" > 5)) 
+                "Benefit - Total Accrual" = ("Base Salary"->"no property"->"begbalance" / 12) * 1.5 * "Service Tenure";
+                "Benefit - Plan Year" = ("Base Salary"->"no property"->"begbalance" / 12) * 1.5;
+            ENDIF
+        ENDIF
+        IF ("Hire Date"->"BEGBALANCE"->"NO PROPERTY" == ("Jan2nd"->"C0000"->"E0000"->"G0000"->"N0000"->"OEP_No Entity"->"NO YEAR"->"BEGBALANCE"->"no property" - 1)) 
+            "Service Tenure" = @CalcMgrDateDiff("Hire Date"->"BEGBALANCE"->"NO PROPERTY", "TP-EndDate", "YEAR") + 1;
+            IF (@ISMBR("CATEGORY_A") AND @ISMBR("P0") AND ("Service Tenure" >= 1 AND "Service Tenure" <= 5)) 
+                "Benefit - Total Accrual" = ("Base Salary"->"no property"->"begbalance" / 12) * 1.5 * "Service Tenure";
+                "Benefit - Plan Year" = ("Base Salary"->"no property"->"begbalance" / 12) * 1.5;
+            ELSEIF (@ISMBR("CATEGORY_B") AND @ISMBR("P0") AND ("Service Tenure" >= 1 AND "Service Tenure" <= 5)) 
+                "Benefit - Total Accrual" = ("Base Salary"->"no property"->"begbalance" / 12) * 1 * "Service Tenure";
+                "Benefit - Plan Year" = ("Base Salary"->"no property"->"begbalance" / 12) * 1;
+            ELSEIF (@ISMBR("CATEGORY_B") AND (@ISMBR("S2") OR @ISMBR("S4")) AND ("Service Tenure" >= 1 AND "Service Tenure" <= 5)) 
+                "Benefit - Total Accrual" = ("Base Salary"->"no property"->"begbalance" / 12) * 1 * "Service Tenure";
+                "Benefit - Plan Year" = ("Base Salary"->"no property"->"begbalance" / 12) * 1;
+            ENDIF
+        ENDIF
+    ) 
+ENDFIX 
+FIX ("Benefit - Total Accrual", "Benefit - Plan Year", {Entity}, OEP_Working, "OWP_EXPENSE AMOUNT", "OEP_PLAN", &Plan_year, "Jan":"dec", "P0000") 
+    SET AGGMISSG ON;
+    AGG ("COST CENTER", "NATIONALITY", "EMPLOYEE", "GRADE");
+    SET AGGMISSG ON;
+ENDFIX
